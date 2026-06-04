@@ -1,7 +1,7 @@
 # Cellulogram 🎬
 ### Premium Casting Workspace & Audition Pipeline for Regional Cinema
 
-Cellulogram is a state-of-the-art mobile casting application designed specifically for **actors, independent filmmakers, and regional directors** (e.g., Malayalam, Tamil cinema). It eliminates messy WhatsApp and Google Drive clutter by providing a highly-responsive native pipeline for casting calls, self-tapes, and instant swipe-shortlisting review.
+Cellulogram is a state-of-the-art mobile casting application designed specifically for **actors, independent filmmakers, and regional directors**. It eliminates messy WhatsApp and Google Drive clutter by providing a highly-responsive native pipeline for casting calls, self-tapes, and instant swipe-shortlisting review.
 
 > [!NOTE]  
 > **Mobile Native Architecture**: This is a fully native mobile application built on **Expo SDK 55**, **React Native**, **NativeWind v4 (Tailwind CSS v4 engine)**, **Zustand** for state, and **React Query** for server state. It is styled natively for smooth performance on physical iOS/Android screens and simulators.
