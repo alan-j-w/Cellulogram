@@ -1,18 +1,49 @@
-import React from 'react';
-import { View, Text, ScrollView, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, ScrollView, Image, TouchableOpacity, Modal, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 import { useAuthStore } from '@/store/authStore';
 
 export default function DirectorProfileScreen() {
   const router = useRouter();
-  const { user, signOut, isLoading } = useAuthStore();
+  const { user, signOut, isLoading, updateProfileSimulated } = useAuthStore();
+
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [name, setName] = useState('');
+  const [companyName, setCompanyName] = useState('');
 
   const handleSignOut = async () => {
     await signOut();
     router.replace('/');
+  };
+
+  const handleOpenEditModal = () => {
+    setName(user?.name || '');
+    setCompanyName(user?.company_name || '');
+    setIsEditModalVisible(true);
+  };
+
+  const handleSave = () => {
+    if (!name.trim()) {
+      Alert.alert('Error', 'Full Name is required.');
+      return;
+    }
+    if (!companyName.trim()) {
+      Alert.alert('Error', 'Studio/Company Name is required.');
+      return;
+    }
+
+    updateProfileSimulated({
+      name: name.trim(),
+      avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name.trim())}&backgroundColor=d4af37`,
+      company_name: companyName.trim(),
+    });
+
+    Alert.alert('Success', 'Your studio profile has been updated successfully!');
+    setIsEditModalVisible(false);
   };
 
   return (
@@ -41,7 +72,15 @@ export default function DirectorProfileScreen() {
           <Text className="text-accent text-xs font-semibold uppercase tracking-wider mt-1">
             🎬 Casting Director
           </Text>
-          <Text className="text-muted text-xs mt-1.5">{user?.email}</Text>
+          <Text className="text-muted text-xs mt-1.5 mb-3">{user?.email}</Text>
+
+          <Button
+            label="EDIT STUDIO DETAILS"
+            variant="outline"
+            size="sm"
+            onPress={handleOpenEditModal}
+            containerClassName="py-1 px-4 rounded-xl"
+          />
         </Card>
 
         {/* Studio Engagement / Structural Trust Metrics */}
@@ -115,6 +154,51 @@ export default function DirectorProfileScreen() {
           textClassName="text-red-400"
         />
       </ScrollView>
+
+      <Modal
+        visible={isEditModalVisible}
+        animationType="slide"
+        transparent={false}
+        onRequestClose={() => setIsEditModalVisible(false)}
+      >
+        <SafeAreaView className="flex-1 bg-background">
+          {/* Modal Header */}
+          <View className="px-6 py-4 flex-row justify-between items-center border-b border-border bg-[#0B0B0B]">
+            <Text className="text-white text-base font-bold tracking-tight">Edit Studio Profile</Text>
+            <TouchableOpacity 
+              onPress={() => setIsEditModalVisible(false)}
+              className="px-3 py-1.5 bg-card border border-border rounded-xl"
+            >
+              <Text className="text-white text-xs font-semibold">Cancel</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Form Fields */}
+          <ScrollView className="flex-grow p-6" contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
+            <Input
+              label="Full Name"
+              placeholder="e.g. Paramjeet Dhanjal"
+              value={name}
+              onChangeText={setName}
+            />
+
+            <Input
+              label="Production House / Company"
+              placeholder="e.g. Kerala Indie Creators"
+              value={companyName}
+              onChangeText={setCompanyName}
+            />
+
+            <Button
+              label="SAVE CHANGES"
+              variant="primary"
+              size="lg"
+              onPress={handleSave}
+              containerClassName="mt-4"
+            />
+          </ScrollView>
+        </SafeAreaView>
+      </Modal>
     </SafeAreaView>
   );
 }
