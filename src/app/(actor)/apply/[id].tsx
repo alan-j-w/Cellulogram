@@ -53,12 +53,11 @@ export default function ApplyScreen() {
     enabled: !!id,
   });
 
-  // Pick Audition Video
-  const handleSelectVideo = async () => {
-    // Request permission first
+  // Choose video from library
+  const handleChooseFromLibrary = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Permission Denied', 'Cellulogram requires media library access to select your self-tape auditions.');
+      Alert.alert('Permission Denied', 'Cellulogram requires gallery access to select your self-tape auditions.');
       return;
     }
 
@@ -71,6 +70,48 @@ export default function ApplyScreen() {
     if (!result.canceled && result.assets && result.assets.length > 0) {
       setVideoUri(result.assets[0].uri);
     }
+  };
+
+  // Record video using camera
+  const handleRecordVideo = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission Denied', 'Cellulogram requires camera access to record your self-tape auditions.');
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ['videos'],
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setVideoUri(result.assets[0].uri);
+    }
+  };
+
+  // Prompt user to select between camera and gallery
+  const handleSelectVideo = () => {
+    Alert.alert(
+      'Upload Audition Video',
+      'Select a source for your self-tape audition:',
+      [
+        {
+          text: '🎥 Record Video',
+          onPress: handleRecordVideo,
+        },
+        {
+          text: '🖼️ Choose from Gallery',
+          onPress: handleChooseFromLibrary,
+        },
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   // Submit Application Mutation
