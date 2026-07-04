@@ -153,10 +153,17 @@ export default function ApplyScreen() {
     // Phase 1: Compile
     await new Promise((resolve) => setTimeout(resolve, 800));
     setUploadProgress(40);
-    setStatusText('Uploading high-quality audio & visual layers to secure Supabase container...');
+    setStatusText('Uploading self-tape video to remote container...');
 
-    // Phase 2: Upload
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    // Phase 2: Upload & Remote Sync
+    let finalVideoUrl = videoUri;
+    try {
+      finalVideoUrl = await databaseService.uploadAuditionVideo(videoUri, user.id);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    } catch (err) {
+      console.warn("Upload failed, falling back to local URI", err);
+    }
+
     setUploadProgress(85);
     setStatusText('Running trust index credentials and registering audition status tracking...');
 
@@ -171,7 +178,7 @@ export default function ApplyScreen() {
     applyMutation.mutate({
       role_id: id as string,
       actor_id: user.id,
-      video_url: videoUri, // In production, this would be the Supabase Storage URL
+      video_url: finalVideoUrl,
       actor_name: user.name,
       actor_age: user.age || '24',
       actor_gender: user.gender || 'Male',

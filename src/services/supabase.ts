@@ -185,6 +185,51 @@ let mockApplications: Application[] = [
 ];
 
 export const databaseService = {
+  // Upload video to Supabase Storage (or mock stream URL if credentials do not exist)
+  async uploadAuditionVideo(uri: string, userId: string): Promise<string> {
+    if (supabase) {
+      try {
+        const response = await fetch(uri);
+        const blob = await response.blob();
+        const fileExt = uri.split('.').pop() || 'mp4';
+        const fileName = `${userId}/${Date.now()}.${fileExt}`;
+        const filePath = `auditions/${fileName}`;
+
+        const { error } = await supabase.storage
+          .from('cellulogram-assets')
+          .upload(filePath, blob, {
+            contentType: `video/${fileExt}`,
+            cacheControl: '3600',
+            upsert: false,
+          });
+
+        if (error) throw error;
+
+        const { data: publicUrlData } = supabase.storage
+          .from('cellulogram-assets')
+          .getPublicUrl(filePath);
+
+        return publicUrlData.publicUrl;
+      } catch (err) {
+        console.error('Supabase storage upload error:', err);
+        throw new Error('Failed to upload video to Supabase Storage.');
+      }
+    }
+
+    // High-fidelity public video fallback URLs (Google APIs gtv-videos-bucket files)
+    const mockVideoUrls = [
+      'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+      'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+      'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+      'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+      'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
+    ];
+
+    // Pick one randomly
+    const index = Math.floor(Math.random() * mockVideoUrls.length);
+    return mockVideoUrls[index];
+  },
+
   // Get all roles
   async getRoles(): Promise<Role[]> {
     await new Promise((resolve) => setTimeout(resolve, 600)); // Simulate internet delay
