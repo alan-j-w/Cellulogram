@@ -22,7 +22,7 @@ export default function LoginScreen() {
     
     try {
       const name = roleSelection === 'director' ? 'Paramjeet Dhanjal' : 'Amal Dev';
-      await signInSimulated(email, roleSelection, name);
+      await signInSimulated(email, roleSelection, name, password);
       
       if (roleSelection === 'actor') {
         router.replace('/(actor)/dashboard');
@@ -40,7 +40,7 @@ export default function LoginScreen() {
     const mockName = selectedRole === 'director' ? 'Paramjeet Dhanjal' : 'Amal Dev';
     
     try {
-      await signInSimulated(mockEmail, selectedRole, mockName);
+      await signInSimulated(mockEmail, selectedRole, mockName, 'password123');
       if (selectedRole === 'actor') {
         router.replace('/(actor)/dashboard');
       } else {

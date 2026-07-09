@@ -232,12 +232,83 @@ export const databaseService = {
 
   // Get all roles
   async getRoles(): Promise<Role[]> {
+    if (supabase) {
+      const { data, error } = await supabase
+        .from('roles')
+        .select(`
+          *,
+          users (name),
+          director_profiles (verified)
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching roles:', error);
+        throw error;
+      }
+
+      return (data || []).map((item: any) => ({
+        id: item.id,
+        director_id: item.director_id,
+        project_title: item.project_title,
+        role_title: item.role_title,
+        category: item.category,
+        age_range: item.age_range,
+        gender: item.gender,
+        language: item.language,
+        location: item.location,
+        description: item.description,
+        requirements: item.requirements,
+        deadline: item.deadline,
+        created_at: item.created_at,
+        director_name: (Array.isArray(item.users) ? item.users[0]?.name : item.users?.name) || 'Production House',
+        director_verified: (Array.isArray(item.director_profiles) ? item.director_profiles[0]?.verified : item.director_profiles?.verified) || false
+      }));
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 600)); // Simulate internet delay
     return [...mockRoles];
   },
 
   // Get single role details
   async getRoleById(id: string): Promise<Role | null> {
+    if (supabase) {
+      const { data, error } = await supabase
+        .from('roles')
+        .select(`
+          *,
+          users (name),
+          director_profiles (verified)
+        `)
+        .eq('id', id)
+        .single();
+
+      if (error) {
+        console.error('Error fetching role by ID:', error);
+        return null;
+      }
+
+      if (!data) return null;
+
+      return {
+        id: data.id,
+        director_id: data.director_id,
+        project_title: data.project_title,
+        role_title: data.role_title,
+        category: data.category,
+        age_range: data.age_range,
+        gender: data.gender,
+        language: data.language,
+        location: data.location,
+        description: data.description,
+        requirements: data.requirements,
+        deadline: data.deadline,
+        created_at: data.created_at,
+        director_name: (Array.isArray(data.users) ? data.users[0]?.name : data.users?.name) || 'Production House',
+        director_verified: (Array.isArray(data.director_profiles) ? data.director_profiles[0]?.verified : data.director_profiles?.verified) || false
+      };
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 300));
     const role = mockRoles.find((r) => r.id === id);
     return role ? { ...role } : null;
@@ -245,6 +316,33 @@ export const databaseService = {
 
   // Post a new role (Director workflow)
   async postRole(roleData: Omit<Role, 'id' | 'created_at'>): Promise<Role> {
+    if (supabase) {
+      const { data, error } = await supabase
+        .from('roles')
+        .insert({
+          director_id: roleData.director_id,
+          project_title: roleData.project_title,
+          role_title: roleData.role_title,
+          category: roleData.category,
+          age_range: roleData.age_range,
+          gender: roleData.gender,
+          language: roleData.language,
+          location: roleData.location,
+          description: roleData.description,
+          requirements: roleData.requirements,
+          deadline: roleData.deadline
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error posting role:', error);
+        throw error;
+      }
+
+      return data as Role;
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 800));
     const newRole: Role = {
       ...roleData,
@@ -257,12 +355,96 @@ export const databaseService = {
 
   // Get applications for a specific role (Director workflow)
   async getApplicationsForRole(roleId: string): Promise<Application[]> {
+    if (supabase) {
+      const { data, error } = await supabase
+        .from('applications')
+        .select(`
+          *,
+          users (name, avatar_url),
+          actor_profiles (age, gender, location, experience, skills)
+        `)
+        .eq('role_id', roleId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching applications for role:', error);
+        throw error;
+      }
+
+      return (data || []).map((item: any) => {
+        const actorUser = item.users;
+        const actorProfile = Array.isArray(item.actor_profiles) ? item.actor_profiles[0] : item.actor_profiles;
+
+        return {
+          id: item.id,
+          role_id: item.role_id,
+          actor_id: item.actor_id,
+          video_url: item.video_url,
+          status: item.status,
+          viewed: item.viewed,
+          shortlisted: item.shortlisted,
+          created_at: item.created_at,
+          actor_name: (Array.isArray(actorUser) ? actorUser[0]?.name : actorUser?.name) || 'Talent',
+          actor_avatar: Array.isArray(actorUser) ? actorUser[0]?.avatar_url : actorUser?.avatar_url,
+          actor_age: (actorProfile?.age)?.toString() || '24',
+          actor_gender: actorProfile?.gender || 'Male',
+          actor_location: actorProfile?.location || 'Kochi, Kerala',
+          actor_experience: actorProfile?.experience || '',
+          actor_skills: actorProfile?.skills || ''
+        };
+      });
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 700));
     return mockApplications.filter((app) => app.role_id === roleId);
   },
 
   // Get applications submitted by a specific actor (Actor tracking workflow)
   async getApplicationsByActor(actorId: string): Promise<Application[]> {
+    if (supabase) {
+      const { data, error } = await supabase
+        .from('applications')
+        .select(`
+          *,
+          users (name, avatar_url),
+          actor_profiles (age, gender, location, experience, skills),
+          roles (role_title, project_title)
+        `)
+        .eq('actor_id', actorId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching applications by actor:', error);
+        throw error;
+      }
+
+      return (data || []).map((item: any) => {
+        const actorUser = item.users;
+        const actorProfile = Array.isArray(item.actor_profiles) ? item.actor_profiles[0] : item.actor_profiles;
+        const roleInfo = Array.isArray(item.roles) ? item.roles[0] : item.roles;
+
+        return {
+          id: item.id,
+          role_id: item.role_id,
+          actor_id: item.actor_id,
+          video_url: item.video_url,
+          status: item.status,
+          viewed: item.viewed,
+          shortlisted: item.shortlisted,
+          created_at: item.created_at,
+          actor_name: (Array.isArray(actorUser) ? actorUser[0]?.name : actorUser?.name) || 'Talent',
+          actor_avatar: Array.isArray(actorUser) ? actorUser[0]?.avatar_url : actorUser?.avatar_url,
+          actor_age: (actorProfile?.age)?.toString() || '24',
+          actor_gender: actorProfile?.gender || 'Male',
+          actor_location: actorProfile?.location || 'Kochi, Kerala',
+          actor_experience: actorProfile?.experience || '',
+          actor_skills: actorProfile?.skills || '',
+          role_title: roleInfo?.role_title || 'Casting Role',
+          project_title: roleInfo?.project_title || 'Film Project'
+        };
+      });
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 600));
     return mockApplications.filter((app) => app.actor_id === actorId);
   },
@@ -279,9 +461,51 @@ export const databaseService = {
     actor_experience?: string;
     actor_skills?: string;
   }): Promise<Application> {
+    if (supabase) {
+      const { data, error } = await supabase
+        .from('applications')
+        .insert({
+          role_id: applicationData.role_id,
+          actor_id: applicationData.actor_id,
+          video_url: applicationData.video_url,
+          status: 'Submitted',
+          viewed: false,
+          shortlisted: false
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error applying to role:', error);
+        throw error;
+      }
+
+      const role = await this.getRoleById(applicationData.role_id);
+
+      return {
+        id: data.id,
+        role_id: data.role_id,
+        actor_id: data.actor_id,
+        video_url: data.video_url,
+        status: data.status,
+        viewed: data.viewed,
+        shortlisted: data.shortlisted,
+        created_at: data.created_at,
+        actor_name: applicationData.actor_name,
+        actor_avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(applicationData.actor_name)}&backgroundColor=d4af37`,
+        actor_age: applicationData.actor_age,
+        actor_gender: applicationData.actor_gender,
+        actor_location: applicationData.actor_location,
+        actor_experience: applicationData.actor_experience,
+        actor_skills: applicationData.actor_skills,
+        role_title: role?.role_title || 'Casting Role',
+        project_title: role?.project_title || 'Film Project'
+      };
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulating video processing
     const role = mockRoles.find((r) => r.id === applicationData.role_id);
-    
+
     const newApp: Application = {
       ...applicationData,
       id: `app_${Math.random().toString(36).substr(2, 9)}`,
@@ -300,9 +524,65 @@ export const databaseService = {
 
   // Update application status: Viewed, Shortlisted, Rejected, etc. (Director workflow)
   async updateApplicationStatus(
-    appId: string, 
+    appId: string,
     status: Application['status']
   ): Promise<Application | null> {
+    if (supabase) {
+      const isShortlisted = status === 'Shortlisted' || status === 'Meeting Scheduled';
+      const isViewed = status !== 'Submitted';
+
+      const { error } = await supabase
+        .from('applications')
+        .update({
+          status,
+          viewed: isViewed,
+          shortlisted: isShortlisted
+        })
+        .eq('id', appId);
+
+      if (error) {
+        console.error('Error updating application status:', error);
+        throw error;
+      }
+
+      const { data: appDetails, error: detailsError } = await supabase
+        .from('applications')
+        .select(`
+          *,
+          users (name, avatar_url),
+          actor_profiles (age, gender, location, experience, skills),
+          roles (role_title, project_title)
+        `)
+        .eq('id', appId)
+        .single();
+
+      if (detailsError || !appDetails) return null;
+
+      const actorUser = appDetails.users;
+      const actorProfile = Array.isArray(appDetails.actor_profiles) ? appDetails.actor_profiles[0] : appDetails.actor_profiles;
+      const roleInfo = Array.isArray(appDetails.roles) ? appDetails.roles[0] : appDetails.roles;
+
+      return {
+        id: appDetails.id,
+        role_id: appDetails.role_id,
+        actor_id: appDetails.actor_id,
+        video_url: appDetails.video_url,
+        status: appDetails.status,
+        viewed: appDetails.viewed,
+        shortlisted: appDetails.shortlisted,
+        created_at: appDetails.created_at,
+        actor_name: (Array.isArray(actorUser) ? actorUser[0]?.name : actorUser?.name) || 'Talent',
+        actor_avatar: Array.isArray(actorUser) ? actorUser[0]?.avatar_url : actorUser?.avatar_url,
+        actor_age: (actorProfile?.age)?.toString() || '24',
+        actor_gender: actorProfile?.gender || 'Male',
+        actor_location: actorProfile?.location || 'Kochi, Kerala',
+        actor_experience: actorProfile?.experience || '',
+        actor_skills: actorProfile?.skills || '',
+        role_title: roleInfo?.role_title || 'Casting Role',
+        project_title: roleInfo?.project_title || 'Film Project'
+      };
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 400));
     const index = mockApplications.findIndex((app) => app.id === appId);
     if (index === -1) return null;

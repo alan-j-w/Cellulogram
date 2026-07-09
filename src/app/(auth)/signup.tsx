@@ -35,7 +35,7 @@ export default function SignupScreen() {
         ? { age, location, skills, languages } 
         : { company_name: companyName || 'Independent Production' };
 
-      await signUpSimulated(email, role, name, additionalDetails);
+      await signUpSimulated(email, role, name, additionalDetails, password);
 
       Alert.alert('Success', `Account created successfully as ${role === 'actor' ? 'Actor' : 'Director'}!`, [
         {
