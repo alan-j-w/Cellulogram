@@ -24,7 +24,7 @@ export function Card({
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={onPress}
-        className={`bg-card border border-border rounded-2xl p-4 shadow-xl ${className}`}
+        className={`bg-card border border-border rounded-2xl p-4 ${className}`}
         {...(props as TouchableOpacityProps)}
       >
         {children}
@@ -34,7 +34,7 @@ export function Card({
 
   return (
     <View
-      className={`bg-card border border-border rounded-2xl p-4 shadow-xl ${className}`}
+      className={`bg-card border border-border rounded-2xl p-4 ${className}`}
       {...props}
     >
       {children}

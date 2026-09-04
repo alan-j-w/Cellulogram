@@ -1,10 +1,13 @@
 import React from 'react';
 import { Tabs, Redirect } from 'expo-router';
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
 import { useAuthStore } from '@/store/authStore';
+import { useThemeColors } from '@/hooks/useThemeColors';
+import { LayoutDashboard, PlusCircle, User } from 'lucide-react-native';
 
 export default function DirectorLayout() {
   const { user } = useAuthStore();
+  const colors = useThemeColors();
 
   // Route security gate: ensure only directors can access
   if (!user || user.role !== 'director') {
@@ -16,15 +19,15 @@ export default function DirectorLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: '#0B0B0B',
+          backgroundColor: colors.background,
           borderTopWidth: 1,
-          borderTopColor: '#262626',
+          borderTopColor: colors.border,
           height: 65,
           paddingBottom: 10,
           paddingTop: 8,
         },
-        tabBarActiveTintColor: '#D4AF37',
-        tabBarInactiveTintColor: '#9E9E9E',
+        tabBarActiveTintColor: colors.accent,
+        tabBarInactiveTintColor: colors.muted,
         tabBarLabelStyle: {
           fontSize: 10,
           fontWeight: '600',
@@ -35,8 +38,8 @@ export default function DirectorLayout() {
         name="dashboard"
         options={{
           title: 'Dashboard',
-          tabBarIcon: ({ color, focused }) => (
-            <Text style={{ color, fontSize: focused ? 18 : 16 }}>📊</Text>
+          tabBarIcon: ({ color, size }) => (
+            <LayoutDashboard size={size} color={color} />
           ),
         }}
       />
@@ -44,8 +47,8 @@ export default function DirectorLayout() {
         name="post-role"
         options={{
           title: 'Post Call',
-          tabBarIcon: ({ color, focused }) => (
-            <Text style={{ color, fontSize: focused ? 18 : 16 }}>➕</Text>
+          tabBarIcon: ({ color, size }) => (
+            <PlusCircle size={size} color={color} />
           ),
         }}
       />
@@ -53,8 +56,8 @@ export default function DirectorLayout() {
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color, focused }) => (
-            <Text style={{ color, fontSize: focused ? 18 : 16 }}>👤</Text>
+          tabBarIcon: ({ color, size }) => (
+            <User size={size} color={color} />
           ),
         }}
       />

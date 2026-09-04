@@ -84,8 +84,8 @@ export default function PostRoleScreen() {
   return (
     <SafeAreaView className="flex-1 bg-background">
       {/* Top Header bar */}
-      <View className="px-6 py-4 flex-row items-center border-b border-border bg-[#0B0B0B]">
-        <Text className="text-white text-base font-bold tracking-tight">Create Casting Call</Text>
+      <View className="px-6 py-4 flex-row items-center border-b border-border bg-card">
+        <Text className="text-textPrimary text-base font-bold tracking-tight">Create Casting Call</Text>
       </View>
 
       <ScrollView 
@@ -97,7 +97,7 @@ export default function PostRoleScreen() {
           <Text className="text-accent text-xs font-bold uppercase tracking-[0.2em] mb-2">
             POST CALL SHEET
           </Text>
-          <Text className="text-white text-3xl font-extrabold tracking-tight">
+          <Text className="text-textPrimary text-3xl font-extrabold tracking-tight">
             Publish New{"\n"}Audition Role.
           </Text>
         </View>
@@ -125,7 +125,7 @@ export default function PostRoleScreen() {
           />
 
           {/* Category selection */}
-          <Text className="text-white text-xs font-semibold mb-2 uppercase tracking-widest opacity-80">
+          <Text className="text-textPrimary text-xs font-semibold mb-2 uppercase tracking-widest opacity-80">
             Project Category
           </Text>
           <View className="flex-row flex-wrap gap-2 mb-4">
@@ -136,7 +136,7 @@ export default function PostRoleScreen() {
                 className={`px-3 py-2 rounded-xl border ${
                   category === cat 
                     ? 'border-accent bg-accent/5' 
-                    : 'border-border bg-[#0B0B0B]'
+                    : 'border-border bg-background'
                 }`}
                 disabled={postMutation.isPending}
               >
@@ -177,7 +177,7 @@ export default function PostRoleScreen() {
           </View>
 
           {/* Gender toggle */}
-          <Text className="text-white text-xs font-semibold mb-2 uppercase tracking-widest opacity-80">
+          <Text className="text-textPrimary text-xs font-semibold mb-2 uppercase tracking-widest opacity-80">
             Gender Constraints
           </Text>
           
@@ -189,7 +189,7 @@ export default function PostRoleScreen() {
                 className={`flex-1 py-3.5 rounded-xl border items-center ${
                   gender === g 
                     ? 'border-accent bg-accent/5' 
-                    : 'border-border bg-[#0B0B0B]'
+                    : 'border-border bg-background'
                 }`}
                 disabled={postMutation.isPending}
               >

@@ -1,5 +1,7 @@
 import React from 'react';
-import { View, Text, ImageBackground, SafeAreaView } from 'react-native';
+import { View, Text, ImageBackground } from 'react-native';
+import { Clapperboard } from 'lucide-react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -38,10 +40,10 @@ export default function LandingScreen() {
           {/* Top Logo / Navigation Headers */}
           <View className="flex-row justify-between items-center mt-4">
             <View className="flex-row items-center gap-2">
-              <View className="w-8 h-8 rounded-full border border-accent items-center justify-center bg-black">
+              <View className="w-8 h-8 rounded-full border border-accent items-center justify-center bg-card">
                 <Text className="text-accent font-bold text-base">C</Text>
               </View>
-              <Text className="text-white font-extrabold text-lg tracking-wider">
+              <Text className="text-textPrimary font-extrabold text-lg tracking-wider">
                 CELLULO<Text className="text-accent">GRAM</Text>
               </Text>
             </View>
@@ -60,7 +62,7 @@ export default function LandingScreen() {
               THE WORKFLOW OPERATING SYSTEM
             </Text>
             
-            <Text className="text-white text-4xl font-extrabold tracking-tight leading-[1.15] mb-4">
+            <Text className="text-textPrimary text-4xl font-extrabold tracking-tight leading-[1.15] mb-4">
               Find Your Next Role.{"\n"}
               Discover New Talent.
             </Text>
@@ -70,13 +72,13 @@ export default function LandingScreen() {
             </Text>
 
             {/* Glassmorphic Callouts */}
-            <Card className="bg-[#171717]/85 border-[#262626] p-5 mb-8">
+            <Card className="bg-card/85 border-border p-5 mb-8">
               <View className="flex-row items-center gap-4">
                 <View className="w-10 h-10 rounded-full bg-accent/10 items-center justify-center">
-                  <Text className="text-accent text-lg">🎬</Text>
+                  <Clapperboard size={20} className="text-accent" />
                 </View>
                 <View className="flex-1">
-                  <Text className="text-white font-semibold text-sm">
+                  <Text className="text-textPrimary font-semibold text-sm">
                     Supply-Side First Workflows
                   </Text>
                   <Text className="text-muted text-xs mt-0.5">

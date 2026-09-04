@@ -3,11 +3,23 @@
 @tailwind utilities;
 
 :root {
-  --font-display:
-    Spline Sans, Inter, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji,
-    Segoe UI Symbol, Noto Color Emoji;
-  --font-mono:
-    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
-  --font-rounded: 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif;
-  --font-serif: Georgia, 'Times New Roman', serif;
+  /* Default Theme (Light Mode) - Standard Clean White */
+  --color-background: #F8F9FA;
+  --color-card: #FFFFFF;
+  --color-border: #E5E5E5;
+  --color-muted: #737373;
+  --color-accent: #D4AF37;
+  --color-text-primary: #171717;
+  --color-text-secondary: #525252;
+}
+
+.dark {
+  /* Dark Mode - Cinematic Theme */
+  --color-background: #0B0B0B;
+  --color-card: #171717;
+  --color-border: #262626;
+  --color-muted: #9E9E9E;
+  --color-accent: #D4AF37;
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #A3A3A3;
 }

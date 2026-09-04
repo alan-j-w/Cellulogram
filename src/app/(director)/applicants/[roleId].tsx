@@ -3,36 +3,19 @@ import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator } fr
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useVideoPlayer, VideoView } from 'expo-video';
 import { databaseService, Application } from '@/services/supabase';
+import { VideoPlayer } from '@/components/ui/VideoPlayer';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
-
-// Optimized Video Component wrapping the SDK 55 expo-video player
-function AuditionPlayer({ videoUrl, onPlayerReady }: { videoUrl: string; onPlayerReady?: () => void }) {
-  const player = useVideoPlayer(videoUrl, (p) => {
-    p.loop = true;
-    p.play();
-    if (onPlayerReady) onPlayerReady();
-  });
-
-  return (
-    <View className="w-full h-72 bg-black border-b border-border relative">
-      <VideoView 
-        player={player} 
-        style={{ width: '100%', height: '100%' }} 
-        fullscreenOptions={{ enable: true }}
-        allowsPictureInPicture
-      />
-    </View>
-  );
-}
+import { useThemeColors } from '@/hooks/useThemeColors';
+import { ArrowLeft, Inbox, MapPin, Tag, X, Star, MessageCircle } from 'lucide-react-native';
 
 export default function ApplicantsScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { roleId } = useLocalSearchParams<{ roleId: string }>();
+  const colors = useThemeColors();
 
   // Tracks the index of the applicant currently being viewed
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -109,16 +92,16 @@ export default function ApplicantsScreen() {
   return (
     <SafeAreaView className="flex-1 bg-background">
       {/* Top Header bar */}
-      <View className="px-6 py-4 flex-row items-center justify-between border-b border-border bg-[#0B0B0B]">
+      <View className="px-6 py-4 flex-row items-center justify-between border-b border-border bg-card">
         <View className="flex-row items-center">
           <TouchableOpacity 
             onPress={() => router.back()}
-            className="w-8 h-8 rounded-full border border-border items-center justify-center mr-4"
+            className="w-8 h-8 rounded-full border border-border bg-background items-center justify-center mr-4"
           >
-            <Text className="text-white text-sm font-bold">←</Text>
+            <ArrowLeft size={16} color={colors.textPrimary} />
           </TouchableOpacity>
           <View>
-            <Text className="text-white text-base font-bold tracking-tight">Review Auditions</Text>
+            <Text className="text-textPrimary text-base font-bold tracking-tight">Review Auditions</Text>
             <Text className="text-muted text-[10px] mt-0.5">{role?.project_title} • {role?.role_title}</Text>
           </View>
         </View>
@@ -132,9 +115,9 @@ export default function ApplicantsScreen() {
 
       {!currentApp ? (
         /* Empty Applicants State */
-        <View className="flex-grow items-center justify-center p-6">
-          <Text className="text-5xl mb-4">📭</Text>
-          <Text className="text-white font-bold text-lg">No Applications Received Yet</Text>
+        <View className="flex-grow items-center justify-center p-6 bg-background">
+          <Inbox size={48} color={colors.muted} className="mb-4" />
+          <Text className="text-textPrimary font-bold text-lg">No Applications Received Yet</Text>
           <Text className="text-muted text-xs mt-1.5 text-center px-10 leading-relaxed">
             As soon as actors submit their self-tape video auditions, they will appear in this high-speed review player immediately.
           </Text>
@@ -147,11 +130,13 @@ export default function ApplicantsScreen() {
           />
         </View>
       ) : (
-        <View className="flex-1 justify-between">
+        <View className="flex-1 justify-between bg-background">
           {/* Top Video Player */}
-          <AuditionPlayer 
-            videoUrl={currentApp.video_url} 
+          <VideoPlayer 
+            uri={currentApp.video_url} 
+            style={{ height: 288 }}
             key={currentApp.id} // Forces re-render of player when candidate index shifts
+            controls
           />
 
           {/* Actor Profile Info scroll sheet */}
@@ -163,14 +148,17 @@ export default function ApplicantsScreen() {
             {/* Actor Profile Row */}
             <View className="flex-row justify-between items-center mb-4">
               <View>
-                <Text className="text-white text-2xl font-extrabold tracking-tight">
+                <Text className="text-textPrimary text-2xl font-extrabold tracking-tight">
                   {currentApp.actor_name}
                 </Text>
                 
                 <View className="flex-row items-center gap-2 mt-1">
-                  <Text className="text-[10px] text-accent font-bold uppercase tracking-wider bg-accent/5 px-2 py-0.5 border border-accent/15 rounded-md">
-                    ★ Trust Score 92%
-                  </Text>
+                  <View className="flex-row items-center gap-1 bg-accent/5 px-2 py-0.5 border border-accent/15 rounded-md">
+                    <Star size={10} color={colors.accent} />
+                    <Text className="text-[10px] text-accent font-bold uppercase tracking-wider">
+                      Trust Score 92%
+                    </Text>
+                  </View>
                   
                   <Text className="text-muted text-xs">
                     {currentApp.actor_gender} • {currentApp.actor_age} Years
@@ -178,12 +166,15 @@ export default function ApplicantsScreen() {
                 </View>
               </View>
 
-              <Text className="text-muted text-xs">📍 {currentApp.actor_location}</Text>
+              <View className="flex-row items-center gap-1">
+                <MapPin size={12} color={colors.muted} />
+                <Text className="text-muted text-xs">{currentApp.actor_location}</Text>
+              </View>
             </View>
 
             {/* Application current status chip */}
             <View className="flex-row items-center gap-2 mb-4 bg-card border border-border p-3.5 rounded-2xl">
-              <Text className="text-xs">🏷️</Text>
+              <Tag size={16} color={colors.muted} />
               <Text className="text-muted text-xs flex-grow">
                 Current evaluation state: <Text className="text-accent font-bold">{currentApp.status}</Text>
               </Text>
@@ -191,14 +182,14 @@ export default function ApplicantsScreen() {
 
             {/* Experience and Skills Card */}
             <Card className="bg-card border-border p-5 mb-4">
-              <Text className="text-white text-xs font-bold uppercase tracking-widest mb-2 border-b border-border/40 pb-1.5">
+              <Text className="text-textPrimary text-xs font-bold uppercase tracking-widest mb-2 border-b border-border/40 pb-1.5">
                 On-Screen Experience
               </Text>
               <Text className="text-muted text-xs leading-relaxed mb-4">
                 {currentApp.actor_experience || 'No experience summary inputted.'}
               </Text>
 
-              <Text className="text-white text-xs font-bold uppercase tracking-widest mb-2 border-b border-border/40 pb-1.5">
+              <Text className="text-textPrimary text-xs font-bold uppercase tracking-widest mb-2 border-b border-border/40 pb-1.5">
                 Key Acting Skills & Dialects
               </Text>
               <Text className="text-muted text-xs leading-relaxed">
@@ -226,15 +217,16 @@ export default function ApplicantsScreen() {
           </ScrollView>
 
           {/* Sticky Quick-Action Bar */}
-          <View className="px-6 py-4 border-t border-border bg-[#0B0B0B] flex-row gap-3">
+          <View className="px-6 py-4 border-t border-border bg-card flex-row gap-3">
             {/* REJECT BUTTON */}
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={() => handleAction('Rejected')}
-              className="flex-1 bg-red-950 border border-red-500/35 py-4.5 rounded-2xl items-center justify-center"
+              className="flex-1 bg-red-950 border border-red-500/35 py-4.5 rounded-2xl flex-row items-center justify-center gap-2"
             >
+              <X size={16} color="#f87171" strokeWidth={3} />
               <Text className="text-red-400 font-extrabold text-xs uppercase tracking-widest">
-                ❌ PASS
+                PASS
               </Text>
             </TouchableOpacity>
 
@@ -242,10 +234,11 @@ export default function ApplicantsScreen() {
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={() => handleAction('Shortlisted')}
-              className="flex-2 bg-accent py-4.5 rounded-2xl items-center justify-center"
+              className="flex-2 bg-accent py-4.5 rounded-2xl flex-row items-center justify-center gap-2"
             >
+              <Star size={16} color={colors.background} fill={colors.background} />
               <Text className="text-background font-black text-xs uppercase tracking-wider">
-                ⭐ SHORTLIST TALENT
+                SHORTLIST TALENT
               </Text>
             </TouchableOpacity>
 
@@ -253,9 +246,9 @@ export default function ApplicantsScreen() {
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={() => Alert.alert('Chat Workspace', `Initial message sent to ${currentApp.actor_name}. WhatsApp backup synced.`)}
-              className="w-14 bg-card border border-border rounded-2xl items-center justify-center"
+              className="w-14 bg-background border border-border rounded-2xl items-center justify-center"
             >
-              <Text className="text-white text-base">💬</Text>
+              <MessageCircle size={20} color={colors.textPrimary} />
             </TouchableOpacity>
           </View>
         </View>

@@ -7,10 +7,13 @@ import { databaseService } from '@/services/supabase';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useThemeColors } from '@/hooks/useThemeColors';
+import { ArrowLeft, MapPin, Users, Languages, Calendar } from 'lucide-react-native';
 
 export default function RoleDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const colors = useThemeColors();
 
   // Fetch the role details via React Query
   const { data: role, isLoading } = useQuery({
@@ -32,7 +35,7 @@ export default function RoleDetailScreen() {
   if (!role) {
     return (
       <SafeAreaView className="flex-1 bg-background items-center justify-center p-6">
-        <Text className="text-white text-lg font-bold mb-4">Casting Call Not Found</Text>
+        <Text className="text-textPrimary text-lg font-bold mb-4">Casting Call Not Found</Text>
         <Button label="BACK TO BOARD" onPress={() => router.back()} />
       </SafeAreaView>
     );
@@ -41,14 +44,14 @@ export default function RoleDetailScreen() {
   return (
     <SafeAreaView className="flex-1 bg-background">
       {/* Top Header Navigation */}
-      <View className="px-6 py-4 flex-row items-center border-b border-border bg-[#0B0B0B]">
+      <View className="px-6 py-4 flex-row items-center border-b border-border bg-card">
         <TouchableOpacity 
           onPress={() => router.back()}
-          className="w-8 h-8 rounded-full border border-border items-center justify-center mr-4"
+          className="w-8 h-8 rounded-full border border-border bg-background items-center justify-center mr-4"
         >
-          <Text className="text-white text-sm font-bold">←</Text>
+          <ArrowLeft size={16} color={colors.textPrimary} />
         </TouchableOpacity>
-        <Text className="text-white text-base font-bold tracking-tight">Casting Call Details</Text>
+        <Text className="text-textPrimary text-base font-bold tracking-tight">Casting Call Details</Text>
       </View>
 
       <ScrollView 
@@ -61,11 +64,11 @@ export default function RoleDetailScreen() {
           <Text className="text-accent text-xs font-bold uppercase tracking-widest bg-accent/5 self-start px-2.5 py-1 border border-accent/20 rounded-md mb-3">
             {role.category}
           </Text>
-          <Text className="text-white text-3xl font-extrabold tracking-tight mb-1">
+          <Text className="text-textPrimary text-3xl font-extrabold tracking-tight mb-1">
             {role.project_title}
           </Text>
           <Text className="text-muted text-sm">
-            Casting Director: <Text className="text-white font-medium">{role.director_name || 'Production House'}</Text>
+            Casting Director: <Text className="text-textPrimary font-medium">{role.director_name || 'Production House'}</Text>
           </Text>
         </View>
 
@@ -74,35 +77,35 @@ export default function RoleDetailScreen() {
           <Text className="text-accent text-[11px] font-bold uppercase tracking-widest mb-3">
             ROLE SPECIFICATIONS
           </Text>
-          <Text className="text-white text-xl font-bold mb-4">{role.role_title}</Text>
+          <Text className="text-textPrimary text-xl font-bold mb-4">{role.role_title}</Text>
 
           <View className="grid grid-cols-2 gap-y-4 gap-x-2 border-t border-border/50 pt-4">
-            <View className="flex-row items-center col-span-1">
-              <Text className="text-lg mr-2">📍</Text>
+            <View className="flex-row items-center col-span-1 gap-2">
+              <MapPin size={20} color={colors.muted} />
               <View>
                 <Text className="text-[10px] text-muted font-bold uppercase">Shoot Location</Text>
-                <Text className="text-white text-xs font-semibold">{role.location}</Text>
+                <Text className="text-textPrimary text-xs font-semibold">{role.location}</Text>
               </View>
             </View>
 
-            <View className="flex-row items-center col-span-1">
-              <Text className="text-lg mr-2">👥</Text>
+            <View className="flex-row items-center col-span-1 gap-2">
+              <Users size={20} color={colors.muted} />
               <View>
                 <Text className="text-[10px] text-muted font-bold uppercase">Required Profile</Text>
-                <Text className="text-white text-xs font-semibold">{role.gender} ({role.age_range} yrs)</Text>
+                <Text className="text-textPrimary text-xs font-semibold">{role.gender} ({role.age_range} yrs)</Text>
               </View>
             </View>
 
-            <View className="flex-row items-center col-span-1 mt-3">
-              <Text className="text-lg mr-2">🗣️</Text>
+            <View className="flex-row items-center col-span-1 mt-3 gap-2">
+              <Languages size={20} color={colors.muted} />
               <View>
                 <Text className="text-[10px] text-muted font-bold uppercase">Language Fluent</Text>
-                <Text className="text-white text-xs font-semibold">{role.language}</Text>
+                <Text className="text-textPrimary text-xs font-semibold">{role.language}</Text>
               </View>
             </View>
 
-            <View className="flex-row items-center col-span-1 mt-3">
-              <Text className="text-lg mr-2">📅</Text>
+            <View className="flex-row items-center col-span-1 mt-3 gap-2">
+              <Calendar size={20} color={colors.muted} />
               <View>
                 <Text className="text-[10px] text-muted font-bold uppercase">Apply Deadline</Text>
                 <Text className="text-red-400 text-xs font-bold">{role.deadline}</Text>
@@ -112,8 +115,8 @@ export default function RoleDetailScreen() {
         </Card>
 
         {/* Project Description */}
-        <Card className="bg-[#171717]/40 border-border p-5 mb-6">
-          <Text className="text-white text-sm font-bold uppercase tracking-wider mb-2">
+        <Card className="bg-background border-border p-5 mb-6">
+          <Text className="text-textPrimary text-sm font-bold uppercase tracking-wider mb-2">
             Project Description
           </Text>
           <Text className="text-muted text-sm leading-relaxed">
@@ -122,8 +125,8 @@ export default function RoleDetailScreen() {
         </Card>
 
         {/* Actor Requirements */}
-        <Card className="bg-[#171717]/40 border-border p-5 mb-8">
-          <Text className="text-white text-sm font-bold uppercase tracking-wider mb-2">
+        <Card className="bg-background border-border p-5 mb-8">
+          <Text className="text-textPrimary text-sm font-bold uppercase tracking-wider mb-2">
             Audition Requirements
           </Text>
           <Text className="text-muted text-sm leading-relaxed">

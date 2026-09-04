@@ -9,10 +9,22 @@
       "distribution": "internal"
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://bxycqqrweicakzkwfkzm.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_LpszGag9Wo3c1dAToVdjPQ_SFYtV0Xa",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "318935151-0a7ntsl75h2hjmobhcvvt1p2d78sbn1t.apps.googleusercontent.com",
+        "EXPO_PUBLIC_ENABLE_MOCK_LOGIN": "false"
+      }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "android": {
+        "buildType": "app-bundle"
+      }
     }
   },
   "submit": {

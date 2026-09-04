@@ -1,209 +1,281 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useAuthStore } from '@/store/authStore';
+import { useThemeColors } from '@/hooks/useThemeColors';
+import { User, Clapperboard } from 'lucide-react-native';
+
+function GoogleIcon() {
+  const colors = useThemeColors();
+  const styles = getStyles(colors);
+  return (
+    <View style={styles.googleIconWrapper}>
+      <Text style={styles.googleIconText}>G</Text>
+    </View>
+  );
+}
 
 export default function SignupScreen() {
   const router = useRouter();
-  const { signUpSimulated, isLoading } = useAuthStore();
+  const { signInWithGoogle, signUp, isLoading } = useAuthStore();
+  const colors = useThemeColors();
+  const styles = getStyles(colors);
 
+  const [role, setRole] = useState<'actor' | 'director'>('actor');
+  const [showEmailSignup, setShowEmailSignup] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<'actor' | 'director'>('actor');
-  
-  // Actor additional onboarding details
-  const [age, setAge] = useState('24');
-  const [location, setLocation] = useState('Kochi, Kerala');
-  const [skills, setSkills] = useState('');
-  const [languages, setLanguages] = useState('Malayalam, Tamil');
 
-  // Director additional onboarding details
-  const [companyName, setCompanyName] = useState('');
-
-  const handleSignup = async () => {
-    if (!name || !email || !password) {
-      Alert.alert('Error', 'Please fill in all basic registration fields.');
-      return;
-    }
-
+  const handleGoogleSignup = async () => {
     try {
-      const additionalDetails = role === 'actor' 
-        ? { age, location, skills, languages } 
-        : { company_name: companyName || 'Independent Production' };
-
-      await signUpSimulated(email, role, name, additionalDetails, password);
-
-      Alert.alert('Success', `Account created successfully as ${role === 'actor' ? 'Actor' : 'Director'}!`, [
+      await signInWithGoogle(role);
+      Alert.alert('Success', `Registered as ${role === 'actor' ? 'Actor' : 'Director'}!`, [
         {
-          text: 'Proceed',
+          text: 'Enter Studio',
           onPress: () => {
             if (role === 'actor') {
               router.replace('/(actor)/dashboard');
             } else {
               router.replace('/(director)/dashboard');
             }
-          }
-        }
+          },
+        },
       ]);
-    } catch (e) {
-      Alert.alert('Sign Up Failed', 'An error occurred during account creation.');
+    } catch (e: any) {
+      Alert.alert('Registration Failed', e?.message || 'Could not complete registration with Google. Please try again.');
     }
   };
 
+  const handleEmailSignup = async () => {
+    if (!name.trim() || !email.trim() || !password.trim()) {
+      Alert.alert('Missing Fields', 'Please enter your name, email, and password.');
+      return;
+    }
+    if (password.length < 6) {
+      Alert.alert('Weak Password', 'Password should be at least 6 characters long.');
+      return;
+    }
+    try {
+      await signUp(email.trim(), role, name.trim(), {}, password);
+      Alert.alert('Account Created', `Welcome to Cellulogram as ${role === 'actor' ? 'Actor' : 'Director'}!`, [
+        {
+          text: 'Enter Studio',
+          onPress: () => {
+            if (role === 'actor') {
+              router.replace('/(actor)/dashboard');
+            } else {
+              router.replace('/(director)/dashboard');
+            }
+          },
+        },
+      ]);
+    } catch (e: any) {
+      Alert.alert('Registration Failed', e?.message || 'Unable to create account. Please try again.');
+    }
+  };
+
+  const isActor = role === 'actor';
+  const isDirector = role === 'director';
+
   return (
-    <SafeAreaView className="flex-1 bg-background">
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="p-6">
-        <TouchableOpacity 
-          onPress={() => router.push('/')}
-          className="w-10 h-10 rounded-full border border-border items-center justify-center mb-6"
-        >
-          <Text className="text-white text-base font-bold">←</Text>
-        </TouchableOpacity>
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.centeredContainer}>
+          <View style={styles.card}>
+            <View pointerEvents="none" style={styles.glowTopRight} />
+            <View pointerEvents="none" style={styles.glowBottomLeft} />
 
-        <View className="mb-6">
-          <Text className="text-accent text-xs font-bold uppercase tracking-[0.2em] mb-2">
-            CREATOR ONBOARDING
-          </Text>
-          <Text className="text-white text-3xl font-extrabold tracking-tight">
-            Register Your{"\n"}Digital Profile.
-          </Text>
-        </View>
+            <View style={styles.header}>
+              <TouchableOpacity
+                onPress={() => router.push('/')}
+                activeOpacity={0.7}
+                style={styles.backButton}
+              >
+                <Text style={styles.backArrow}>←</Text>
+              </TouchableOpacity>
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>New Creator</Text>
+              </View>
+            </View>
 
-        {/* Basic Fields */}
-        <View className="mb-4">
-          <Input
-            label="Full Name"
-            placeholder="John Doe"
-            value={name}
-            onChangeText={setName}
-          />
+            <View style={styles.titleSection}>
+              <Text style={styles.sectionLabel}>Join The Industry</Text>
+              <Text style={styles.headline}>{'Claim Your\nSpot on Stage.'}</Text>
+              <Text style={styles.subtitle}>
+                Connect your Google account and step straight into Malayalam & Tamil casting opportunities.
+              </Text>
+            </View>
 
-          <Input
-            label="Email Address"
-            placeholder="john@example.com"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
+            <View style={styles.roleSection}>
+              <Text style={styles.roleSectionLabel}>Select Your Role</Text>
 
-          <Input
-            label="Password"
-            placeholder="••••••••"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            autoCapitalize="none"
-          />
-        </View>
+              <View style={styles.roleOptions}>
+                {/* Actor Option */}
+                <TouchableOpacity
+                  onPress={() => setRole('actor')}
+                  activeOpacity={0.8}
+                  style={[styles.roleButton, isActor ? styles.roleButtonActive : styles.roleButtonInactive]}
+                >
+                  <View style={styles.roleIconWrapper}>
+                    <User size={24} color={isActor ? colors.accent : colors.textPrimary} />
+                  </View>
+                  <View style={styles.roleTextWrapper}>
+                    <Text style={[styles.roleTitle, { color: isActor ? colors.accent : colors.textPrimary }]}>
+                      Actor
+                    </Text>
+                    <Text style={styles.roleDesc}>Submit self-tapes & audition for major roles.</Text>
+                  </View>
+                  <View style={[styles.radioOuter, { borderColor: isActor ? colors.accent : colors.border }]}>
+                    {isActor && <View style={styles.radioInner} />}
+                  </View>
+                </TouchableOpacity>
 
-        {/* Role Selection */}
-        <Text className="text-white text-xs font-semibold mb-3 uppercase tracking-widest opacity-80">
-          Onboard Profile Category
-        </Text>
-        
-        <View className="flex-row gap-3 mb-6">
-          <TouchableOpacity
-            onPress={() => setRole('actor')}
-            className={`flex-1 py-3.5 px-4 rounded-xl border items-center ${
-              role === 'actor' 
-                ? 'border-accent bg-accent/5' 
-                : 'border-border bg-card'
-            }`}
-          >
-            <Text className={`font-semibold text-sm ${role === 'actor' ? 'text-accent' : 'text-muted'}`}>
-              🎭 I am an Actor
-            </Text>
-          </TouchableOpacity>
+                {/* Director Option */}
+                <TouchableOpacity
+                  onPress={() => setRole('director')}
+                  activeOpacity={0.8}
+                  style={[styles.roleButton, isDirector ? styles.roleButtonActive : styles.roleButtonInactive]}
+                >
+                  <View style={styles.roleIconWrapper}>
+                    <Clapperboard size={24} color={isDirector ? colors.accent : colors.textPrimary} />
+                  </View>
+                  <View style={styles.roleTextWrapper}>
+                    <Text style={[styles.roleTitle, { color: isDirector ? colors.accent : colors.textPrimary }]}>
+                      Director
+                    </Text>
+                    <Text style={styles.roleDesc}>Launch casting calls & discover talent.</Text>
+                  </View>
+                  <View style={[styles.radioOuter, { borderColor: isDirector ? colors.accent : colors.border }]}>
+                    {isDirector && <View style={styles.radioInner} />}
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </View>
 
-          <TouchableOpacity
-            onPress={() => setRole('director')}
-            className={`flex-1 py-3.5 px-4 rounded-xl border items-center ${
-              role === 'director' 
-                ? 'border-accent bg-accent/5' 
-                : 'border-border bg-card'
-            }`}
-          >
-            <Text className={`font-semibold text-sm ${role === 'director' ? 'text-accent' : 'text-muted'}`}>
-              🎬 I am a Director
-            </Text>
-          </TouchableOpacity>
-        </View>
+            <View style={styles.googleSection}>
+              <TouchableOpacity
+                onPress={handleGoogleSignup}
+                disabled={isLoading}
+                activeOpacity={0.85}
+                style={[styles.googleButton, isLoading && styles.googleButtonDisabled]}
+              >
+                <GoogleIcon />
+                <Text style={styles.googleButtonText}>
+                  {isLoading ? 'Creating Account...' : `Register as ${isActor ? 'Actor' : 'Director'}`}
+                </Text>
+              </TouchableOpacity>
+              <Text style={styles.termsText}>
+                By continuing, you accept Cellulogram&apos;s Cast &amp; Crew Terms
+              </Text>
+            </View>
 
-        {/* Additional Onboarding Fields depending on Role */}
-        {role === 'actor' ? (
-          <View className="mb-6 bg-card border border-border p-4 rounded-2xl">
-            <Text className="text-accent text-xs font-bold uppercase tracking-widest mb-3">
-              Actor Portfolio Details
-            </Text>
-            
-            <Input
-              label="Age"
-              placeholder="e.g. 24"
-              value={age}
-              onChangeText={setAge}
-              keyboardType="number-pad"
-            />
+            <View style={styles.emailToggleWrapper}>
+              <TouchableOpacity
+                onPress={() => setShowEmailSignup(!showEmailSignup)}
+                style={styles.emailToggle}
+              >
+                <Text style={styles.emailToggleText}>
+                  {showEmailSignup ? '▲ Hide Email & Password' : '▼ Or sign up with Email & Password'}
+                </Text>
+              </TouchableOpacity>
+            </View>
 
-            <Input
-              label="Primary Location"
-              placeholder="e.g. Kochi, Kerala"
-              value={location}
-              onChangeText={setLocation}
-            />
+            {showEmailSignup && (
+              <View style={styles.emailForm}>
+                <Input
+                  label="Full Name"
+                  placeholder="e.g. Amal Dev"
+                  value={name}
+                  onChangeText={setName}
+                />
+                <Input
+                  label="Email Address"
+                  placeholder="name@example.com"
+                  value={email}
+                  onChangeText={setEmail}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                />
+                <Input
+                  label="Password"
+                  placeholder="At least 6 characters"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry
+                />
+                <Button
+                  label={isLoading ? 'CREATING ACCOUNT...' : `REGISTER AS ${role.toUpperCase()}`}
+                  variant="primary"
+                  size="md"
+                  disabled={isLoading}
+                  onPress={handleEmailSignup}
+                  containerClassName="mt-2"
+                />
+              </View>
+            )}
 
-            <Input
-              label="Languages (comma separated)"
-              placeholder="e.g. Malayalam, Tamil, English"
-              value={languages}
-              onChangeText={setLanguages}
-            />
-
-            <Input
-              label="Primary Acting Skills"
-              placeholder="e.g. Method Acting, Theatre, Action"
-              value={skills}
-              onChangeText={setSkills}
-            />
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>Already have an account? </Text>
+              <TouchableOpacity onPress={() => router.push('/(auth)/login')} style={styles.footerLink}>
+                <Text style={styles.footerLinkText}>Sign In</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        ) : (
-          <View className="mb-6 bg-card border border-border p-4 rounded-2xl">
-            <Text className="text-accent text-xs font-bold uppercase tracking-widest mb-3">
-              Director Studio Details
-            </Text>
-            
-            <Input
-              label="Production Company / Studio Name"
-              placeholder="e.g. A24 Films, Kerala Indie Creators"
-              value={companyName}
-              onChangeText={setCompanyName}
-            />
-          </View>
-        )}
-
-        <View className="mb-8">
-          <Button
-            label="CREATE WORKSPACE ACCOUNT"
-            variant="primary"
-            size="md"
-            loading={isLoading}
-            onPress={handleSignup}
-          />
-        </View>
-
-        <View className="flex-row justify-center items-center mt-auto py-4">
-          <Text className="text-muted text-sm">Already registered? </Text>
-          <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
-            <Text className="text-accent text-sm font-semibold underline">
-              Sign In
-            </Text>
-          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
+
+const getStyles = (colors: ReturnType<typeof useThemeColors>) => StyleSheet.create({
+  safeArea: { flex: 1, backgroundColor: colors.background },
+  scrollContent: { flexGrow: 1 },
+  centeredContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16, paddingVertical: 32 },
+  card: { maxWidth: 400, width: '100%', backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, borderRadius: 32, padding: 32, overflow: 'hidden', position: 'relative' },
+  glowTopRight: { position: 'absolute', top: -128, right: -128, width: 256, height: 256, borderRadius: 128, backgroundColor: 'rgba(212,175,55,0.05)' },
+  glowBottomLeft: { position: 'absolute', bottom: -128, left: -128, width: 256, height: 256, borderRadius: 128, backgroundColor: 'rgba(212,175,55,0.05)' },
+  header: { flexDirection: 'row', alignItems: 'center', marginBottom: 32 },
+  backButton: { width: 40, height: 40, borderRadius: 20, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' },
+  backArrow: { color: colors.textPrimary, fontSize: 16, fontWeight: 'bold' },
+  badge: { marginLeft: 'auto', paddingHorizontal: 16, paddingVertical: 6, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(212,175,55,0.3)', backgroundColor: 'rgba(212,175,55,0.1)' },
+  badgeText: { color: colors.accent, fontSize: 11, fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 2 },
+  titleSection: { marginBottom: 40, alignItems: 'center' },
+  sectionLabel: { color: colors.accent, fontSize: 11, fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 5, marginBottom: 12, textAlign: 'center' },
+  headline: { color: colors.textPrimary, fontSize: 30, fontWeight: '900', letterSpacing: -0.5, lineHeight: 36, textAlign: 'center', marginBottom: 16 },
+  subtitle: { color: colors.muted, fontSize: 13, lineHeight: 20, textAlign: 'center', paddingHorizontal: 8 },
+  roleSection: { marginBottom: 32 },
+  roleSectionLabel: { color: colors.muted, fontSize: 11, fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 3, marginBottom: 16, textAlign: 'center' },
+  roleOptions: { gap: 16 },
+  roleButton: { width: '100%', padding: 20, borderRadius: 16, borderWidth: 1, flexDirection: 'row', alignItems: 'center' },
+  roleButtonActive: { borderColor: colors.accent, backgroundColor: 'rgba(212,175,55,0.1)' },
+  roleButtonInactive: { borderColor: colors.border, backgroundColor: colors.background },
+  roleIconWrapper: { width: 48, height: 48, borderRadius: 24, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center', marginRight: 16, borderWidth: 1, borderColor: colors.border },
+  roleTextWrapper: { flex: 1 },
+  roleTitle: { fontWeight: 'bold', fontSize: 18, marginBottom: 4 },
+  roleDesc: { color: colors.muted, fontSize: 11, lineHeight: 15, paddingRight: 16 },
+  radioOuter: { width: 20, height: 20, borderRadius: 10, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  radioInner: { width: 10, height: 10, borderRadius: 5, backgroundColor: colors.accent },
+  googleSection: { marginBottom: 16 },
+  googleButton: { width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF', paddingVertical: 16, paddingHorizontal: 20, borderRadius: 12, borderWidth: 1, borderColor: '#E5E5E5' },
+  googleButtonDisabled: { opacity: 0.6 },
+  googleButtonText: { color: '#121212', fontWeight: '800', fontSize: 13, letterSpacing: 2, textTransform: 'uppercase' },
+  googleIconWrapper: { width: 20, height: 20, borderRadius: 10, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+  googleIconText: { fontSize: 13, fontWeight: '900', color: '#4285F4', lineHeight: 15 },
+  termsText: { textAlign: 'center', color: colors.muted, fontSize: 10, marginTop: 12, paddingHorizontal: 16, lineHeight: 14 },
+  emailToggleWrapper: { alignItems: 'center', marginBottom: 24 },
+  emailToggle: { paddingVertical: 6, paddingHorizontal: 12 },
+  emailToggleText: { color: colors.muted, fontSize: 12, textDecorationLine: 'underline' },
+  emailForm: { marginBottom: 24, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, padding: 16, borderRadius: 16 },
+  footer: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 24 },
+  footerText: { color: colors.muted, fontSize: 13 },
+  footerLink: { paddingHorizontal: 8, paddingVertical: 4 },
+  footerLinkText: { color: colors.accent, fontSize: 13, fontWeight: 'bold' },
+});

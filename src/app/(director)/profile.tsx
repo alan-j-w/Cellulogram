@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Image, TouchableOpacity, Modal, Alert } from 'react-native';
+import { View, Text, ScrollView, Image, TouchableOpacity, Modal, Alert, Switch } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useAuthStore } from '@/store/authStore';
+import { useThemeStore } from '@/store/themeStore';
+import { LogOut, Clapperboard, BadgeCheck, Settings } from 'lucide-react-native';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 export default function DirectorProfileScreen() {
   const router = useRouter();
-  const { user, signOut, isLoading, updateProfileSimulated } = useAuthStore();
+  const { user, signOut, isLoading, updateProfile } = useAuthStore();
+  const { theme, setTheme } = useThemeStore();
+  const colors = useThemeColors();
 
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [name, setName] = useState('');
@@ -26,7 +31,7 @@ export default function DirectorProfileScreen() {
     setIsEditModalVisible(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!name.trim()) {
       Alert.alert('Error', 'Full Name is required.');
       return;
@@ -36,42 +41,48 @@ export default function DirectorProfileScreen() {
       return;
     }
 
-    updateProfileSimulated({
-      name: name.trim(),
-      avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name.trim())}&backgroundColor=d4af37`,
-      company_name: companyName.trim(),
-    });
+    try {
+      await updateProfile({
+        name: name.trim(),
+        avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name.trim())}&backgroundColor=d4af37`,
+        company_name: companyName.trim(),
+      });
 
-    Alert.alert('Success', 'Your studio profile has been updated successfully!');
-    setIsEditModalVisible(false);
+      Alert.alert('Success', 'Your studio profile has been updated successfully!');
+      setIsEditModalVisible(false);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update studio profile. Please check your connection.');
+    }
   };
 
   return (
     <SafeAreaView className="flex-1 bg-background">
-      {/* Top Header */}
-      <View className="px-6 py-4 flex-row justify-between items-center border-b border-border bg-[#0B0B0B]">
-        <Text className="text-white text-xl font-bold tracking-tight">Studio Profile</Text>
-        <Text className="text-red-500 text-xs font-semibold" onPress={handleSignOut}>
-          Sign Out 📤
-        </Text>
+      <View className="px-6 py-4 flex-row justify-between items-center border-b border-border bg-card">
+        <Text className="text-textPrimary text-xl font-bold tracking-tight">Studio Profile</Text>
+        <TouchableOpacity onPress={handleSignOut} className="flex-row items-center gap-1.5">
+          <Text className="text-red-500 text-xs font-semibold">Sign Out</Text>
+          <LogOut size={14} color="#ef4444" />
+        </TouchableOpacity>
       </View>
 
       <ScrollView className="flex-grow p-6" contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
-        {/* Profile Card Header */}
         <Card className="bg-card border-border items-center p-6 mb-6">
           <Image
             source={{ uri: user?.avatar_url || 'https://api.dicebear.com/7.x/initials/svg?seed=Director' }}
-            className="w-24 h-24 rounded-full border-2 border-accent mb-4 bg-[#171717]"
+            className="w-24 h-24 rounded-full border-2 border-accent mb-4 bg-background"
           />
           <View className="flex-row items-center gap-1.5 justify-center">
-            <Text className="text-white text-xl font-bold">{user?.name}</Text>
+            <Text className="text-textPrimary text-xl font-bold">{user?.name}</Text>
             {user?.verified && (
-              <Text className="text-sky-400 text-sm">✓</Text>
+              <BadgeCheck size={16} color="#38bdf8" />
             )}
           </View>
-          <Text className="text-accent text-xs font-semibold uppercase tracking-wider mt-1">
-            🎬 Casting Director
-          </Text>
+          <View className="flex-row items-center mt-1 gap-1.5">
+            <Clapperboard size={14} color={colors.accent} />
+            <Text className="text-accent text-xs font-semibold uppercase tracking-wider">
+              Casting Director
+            </Text>
+          </View>
           <Text className="text-muted text-xs mt-1.5 mb-3">{user?.email}</Text>
 
           <Button
@@ -83,20 +94,39 @@ export default function DirectorProfileScreen() {
           />
         </Card>
 
-        {/* Studio Engagement / Structural Trust Metrics */}
-        <Card className="bg-[#171717]/85 border-accent/20 p-5 mb-6">
+        {/* Settings Card */}
+        <Card className="bg-card border-border p-5 mb-6">
+          <View className="flex-row items-center gap-2 mb-4 border-b border-border/40 pb-2">
+            <Settings size={16} color={colors.textPrimary} />
+            <Text className="text-textPrimary text-sm font-bold uppercase tracking-wider">
+              Settings
+            </Text>
+          </View>
+          
+          <View className="flex-row justify-between items-center">
+            <Text className="text-textPrimary font-semibold text-sm">Dark Mode</Text>
+            <Switch
+              value={theme === 'dark'}
+              onValueChange={(val) => setTheme(val ? 'dark' : 'light')}
+              trackColor={{ false: colors.border, true: colors.accent }}
+              thumbColor={colors.background}
+            />
+          </View>
+        </Card>
+
+        <Card className="bg-card border-accent/20 p-5 mb-6">
           <Text className="text-accent text-[10px] font-bold uppercase tracking-widest mb-3.5">
             CELLULOGRAM STUDIO STATS
           </Text>
 
           <View className="flex-row justify-between items-center">
             <View className="items-center flex-1 border-r border-border/50 py-1">
-              <Text className="text-white text-base font-extrabold">100%</Text>
+              <Text className="text-textPrimary text-base font-extrabold">100%</Text>
               <Text className="text-[10px] text-muted font-bold uppercase mt-0.5">Role Completion</Text>
             </View>
 
             <View className="items-center flex-1 border-r border-border/50 py-1">
-              <Text className="text-white text-base font-extrabold">2.4 Days</Text>
+              <Text className="text-textPrimary text-base font-extrabold">2.4 Days</Text>
               <Text className="text-[10px] text-muted font-bold uppercase mt-0.5">Average Review</Text>
             </View>
 
@@ -107,23 +137,22 @@ export default function DirectorProfileScreen() {
           </View>
 
           <View className="bg-sky-500/5 border border-sky-500/10 px-3 py-2.5 rounded-xl mt-4 flex-row items-center gap-2">
-            <Text className="text-xs">🎬</Text>
+            <Clapperboard size={14} color="#38bdf8" />
             <Text className="text-[10px] text-sky-400 font-semibold leading-relaxed flex-1">
               Your studio holds a verified status which allows you to broadcast role invitations directly to elite actors in Malayalam and Tamil indie circles.
             </Text>
           </View>
         </Card>
 
-        {/* Studio Specifications */}
         <Card className="bg-card border-border p-5 mb-6">
-          <Text className="text-white text-sm font-bold uppercase tracking-wider mb-4 border-b border-border/40 pb-2">
+          <Text className="text-textPrimary text-sm font-bold uppercase tracking-wider mb-4 border-b border-border/40 pb-2">
             Studio Details
           </Text>
 
           <View className="gap-y-3.5">
             <View className="flex-row justify-between">
               <Text className="text-muted text-xs">Production House</Text>
-              <Text className="text-white text-xs font-semibold">{user?.company_name || 'Independent Production'}</Text>
+              <Text className="text-textPrimary text-xs font-semibold">{user?.company_name || 'Independent Production'}</Text>
             </View>
 
             <View className="flex-row justify-between">
@@ -133,17 +162,16 @@ export default function DirectorProfileScreen() {
 
             <View className="flex-row justify-between">
               <Text className="text-muted text-xs">Casting Region</Text>
-              <Text className="text-white text-xs font-semibold">South India (KL / TN)</Text>
+              <Text className="text-textPrimary text-xs font-semibold">South India (KL / TN)</Text>
             </View>
 
             <View className="flex-row justify-between">
               <Text className="text-muted text-xs">Primary Dialects</Text>
-              <Text className="text-white text-xs font-semibold">Malayalam, Tamil, English</Text>
+              <Text className="text-textPrimary text-xs font-semibold">Malayalam, Tamil, English</Text>
             </View>
           </View>
         </Card>
 
-        {/* Sign Out CTA Button */}
         <Button
           label="SIGN OUT FROM STUDIO WORKSPACE"
           variant="secondary"
@@ -151,7 +179,7 @@ export default function DirectorProfileScreen() {
           loading={isLoading}
           onPress={handleSignOut}
           containerClassName="w-full border-red-500/10 hover:border-red-500/30"
-          textClassName="text-red-400"
+          textClassName="text-red-500"
         />
       </ScrollView>
 
@@ -162,18 +190,16 @@ export default function DirectorProfileScreen() {
         onRequestClose={() => setIsEditModalVisible(false)}
       >
         <SafeAreaView className="flex-1 bg-background">
-          {/* Modal Header */}
-          <View className="px-6 py-4 flex-row justify-between items-center border-b border-border bg-[#0B0B0B]">
-            <Text className="text-white text-base font-bold tracking-tight">Edit Studio Profile</Text>
+          <View className="px-6 py-4 flex-row justify-between items-center border-b border-border bg-card">
+            <Text className="text-textPrimary text-base font-bold tracking-tight">Edit Studio Profile</Text>
             <TouchableOpacity 
               onPress={() => setIsEditModalVisible(false)}
-              className="px-3 py-1.5 bg-card border border-border rounded-xl"
+              className="px-3 py-1.5 bg-background border border-border rounded-xl"
             >
-              <Text className="text-white text-xs font-semibold">Cancel</Text>
+              <Text className="text-textPrimary text-xs font-semibold">Cancel</Text>
             </TouchableOpacity>
           </View>
 
-          {/* Form Fields */}
           <ScrollView className="flex-grow p-6" contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
             <Input
               label="Full Name"

@@ -5,15 +5,18 @@ module.exports = {
     "./src/components/**/*.{js,jsx,ts,tsx}",
     "./src/features/**/*.{js,jsx,ts,tsx}",
   ],
+  darkMode: 'class',
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
       colors: {
-        background: "#0B0B0B",
-        card: "#171717",
-        accent: "#D4AF37",
-        muted: "#9E9E9E",
-        border: "#262626",
+        background: "var(--color-background)",
+        card: "var(--color-card)",
+        accent: "var(--color-accent)",
+        muted: "var(--color-muted)",
+        border: "var(--color-border)",
+        textPrimary: "var(--color-text-primary)",
+        textSecondary: "var(--color-text-secondary)",
       },
     },
   },
