@@ -222,10 +222,10 @@ export default function ApplicantsScreen() {
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={() => handleAction('Rejected')}
-              className="flex-1 bg-red-950 border border-red-500/35 py-4.5 rounded-2xl flex-row items-center justify-center gap-2"
+              className="flex-1 bg-red-500/10 dark:bg-red-950/40 border border-red-500/30 py-4.5 rounded-2xl flex-row items-center justify-center gap-2"
             >
-              <X size={16} color="#f87171" strokeWidth={3} />
-              <Text className="text-red-400 font-extrabold text-xs uppercase tracking-widest">
+              <X size={16} color="#ef4444" strokeWidth={3} />
+              <Text className="text-red-600 dark:text-red-400 font-extrabold text-xs uppercase tracking-widest">
                 PASS
               </Text>
             </TouchableOpacity>
@@ -236,8 +236,8 @@ export default function ApplicantsScreen() {
               onPress={() => handleAction('Shortlisted')}
               className="flex-2 bg-accent py-4.5 rounded-2xl flex-row items-center justify-center gap-2"
             >
-              <Star size={16} color={colors.background} fill={colors.background} />
-              <Text className="text-background font-black text-xs uppercase tracking-wider">
+              <Star size={16} color="#0B0B0B" fill="#0B0B0B" />
+              <Text className="text-[#0B0B0B] font-black text-xs uppercase tracking-wider">
                 SHORTLIST TALENT
               </Text>
             </TouchableOpacity>

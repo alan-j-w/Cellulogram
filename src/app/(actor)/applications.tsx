@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useAuthStore } from '@/store/authStore';
 import { useThemeColors } from '@/hooks/useThemeColors';
+import { useColorScheme } from 'nativewind';
 import { RefreshCw, Lightbulb, Eye, Star, ClipboardList, Check } from 'lucide-react-native';
 
 export default function ApplicationsScreen() {
@@ -20,23 +21,69 @@ export default function ApplicationsScreen() {
     enabled: !!user?.id,
   });
 
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
+
   // Simple helper to match status colors
   const getStatusDetails = (status: string) => {
     switch (status) {
       case 'Submitted':
-        return { label: 'Submitted', color: colors.muted, bg: 'bg-muted/10', border: 'border-muted/20', step: 1 };
+        return { 
+          label: 'Submitted', 
+          color: colors.muted, 
+          bg: isDark ? 'bg-muted/15' : 'bg-muted/10', 
+          border: isDark ? 'border-muted/30' : 'border-muted/20', 
+          step: 1 
+        };
       case 'Viewed':
-        return { label: 'Viewed', color: '#0ea5e9', bg: 'bg-sky-500/10', border: 'border-sky-500/20', step: 2 };
+        return { 
+          label: 'Viewed', 
+          color: isDark ? '#38bdf8' : '#0284c7', 
+          bg: isDark ? 'bg-sky-500/15' : 'bg-sky-500/10', 
+          border: isDark ? 'border-sky-500/30' : 'border-sky-500/20', 
+          step: 2 
+        };
       case 'Under Review':
-        return { label: 'Under Review', color: '#f59e0b', bg: 'bg-amber-500/10', border: 'border-amber-500/20', step: 3 };
+        return { 
+          label: 'Under Review', 
+          color: isDark ? '#fbbf24' : '#d97706', 
+          bg: isDark ? 'bg-amber-500/15' : 'bg-amber-500/10', 
+          border: isDark ? 'border-amber-500/30' : 'border-amber-500/20', 
+          step: 3 
+        };
       case 'Shortlisted':
-        return { label: 'Shortlisted', color: colors.accent, bg: 'bg-accent/10', border: 'border-accent/20', step: 4, icon: Star };
+        return { 
+          label: 'Shortlisted', 
+          color: colors.accent, 
+          bg: isDark ? 'bg-accent/15' : 'bg-accent/10', 
+          border: isDark ? 'border-accent/30' : 'border-accent/20', 
+          step: 4, 
+          icon: Star 
+        };
       case 'Meeting Scheduled':
-        return { label: 'Meeting Scheduled', color: '#8b5cf6', bg: 'bg-violet-500/10', border: 'border-violet-500/20', step: 4 };
+        return { 
+          label: 'Meeting Scheduled', 
+          color: isDark ? '#a78bfa' : '#7c3aed', 
+          bg: isDark ? 'bg-violet-500/15' : 'bg-violet-500/10', 
+          border: isDark ? 'border-violet-500/30' : 'border-violet-500/20', 
+          step: 4 
+        };
       case 'Rejected':
-        return { label: 'Passed', color: '#ef4444', bg: 'bg-red-500/10', border: 'border-red-500/20', step: 4 };
+        return { 
+          label: 'Passed', 
+          color: isDark ? '#f87171' : '#dc2626', 
+          bg: isDark ? 'bg-red-500/15' : 'bg-red-500/10', 
+          border: isDark ? 'border-red-500/30' : 'border-red-500/20', 
+          step: 4 
+        };
       default:
-        return { label: 'Pending', color: colors.muted, bg: 'bg-muted/10', border: 'border-muted/20', step: 1 };
+        return { 
+          label: 'Pending', 
+          color: colors.muted, 
+          bg: isDark ? 'bg-muted/15' : 'bg-muted/10', 
+          border: isDark ? 'border-muted/30' : 'border-muted/20', 
+          step: 1 
+        };
     }
   };
 
@@ -109,7 +156,7 @@ export default function ApplicationsScreen() {
                 {app.viewed && app.status !== 'Shortlisted' && app.status !== 'Meeting Scheduled' && (
                   <View className="bg-sky-500/5 border border-sky-500/10 px-3 py-2 rounded-xl mb-4 flex-row items-center">
                     <Eye size={14} color="#38bdf8" className="mr-2" />
-                    <Text className="text-sky-400 text-xs font-semibold">
+                    <Text className="text-sky-600 dark:text-sky-400 text-xs font-semibold">
                       Your self-tape audition has been viewed by the casting director!
                     </Text>
                   </View>

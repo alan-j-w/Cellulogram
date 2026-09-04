@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, View, StyleSheet } from 'react-native';
+import { Animated } from 'react-native';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 interface SkeletonProps {
   width?: number | string;
@@ -15,6 +16,7 @@ export function Skeleton({
   className = '',
 }: SkeletonProps) {
   const pulseAnim = useRef(new Animated.Value(0.3)).current;
+  const colors = useThemeColors();
 
   useEffect(() => {
     const pulse = Animated.sequence([
@@ -45,9 +47,10 @@ export function Skeleton({
       style={{
         width: typeof width === 'number' ? width : undefined,
         height: typeof height === 'number' ? height : undefined,
+        backgroundColor: colors.border,
         opacity: pulseAnim,
       }}
-      className={`bg-[#222222] ${borderRadiusClass} ${className} ${
+      className={`${borderRadiusClass} ${className} ${
         typeof width === 'string' ? `w-${width}` : ''
       } ${typeof height === 'string' ? `h-${height}` : ''}`}
     />

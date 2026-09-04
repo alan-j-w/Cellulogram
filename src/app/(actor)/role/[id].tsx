@@ -108,14 +108,14 @@ export default function RoleDetailScreen() {
               <Calendar size={20} color={colors.muted} />
               <View>
                 <Text className="text-[10px] text-muted font-bold uppercase">Apply Deadline</Text>
-                <Text className="text-red-400 text-xs font-bold">{role.deadline}</Text>
+                <Text className="text-red-600 dark:text-red-400 text-xs font-bold">{role.deadline}</Text>
               </View>
             </View>
           </View>
         </Card>
 
         {/* Project Description */}
-        <Card className="bg-background border-border p-5 mb-6">
+        <Card className="bg-card border-border p-5 mb-6">
           <Text className="text-textPrimary text-sm font-bold uppercase tracking-wider mb-2">
             Project Description
           </Text>
@@ -125,7 +125,7 @@ export default function RoleDetailScreen() {
         </Card>
 
         {/* Actor Requirements */}
-        <Card className="bg-background border-border p-5 mb-8">
+        <Card className="bg-card border-border p-5 mb-8">
           <Text className="text-textPrimary text-sm font-bold uppercase tracking-wider mb-2">
             Audition Requirements
           </Text>

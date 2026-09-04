@@ -3,7 +3,7 @@ import { Tabs, Redirect } from 'expo-router';
 import { View } from 'react-native';
 import { useAuthStore } from '@/store/authStore';
 import { useThemeColors } from '@/hooks/useThemeColors';
-import { LayoutDashboard, PlusCircle, User } from 'lucide-react-native';
+import { LayoutDashboard, PlusCircle, User, Users } from 'lucide-react-native';
 
 export default function DirectorLayout() {
   const { user } = useAuthStore();
@@ -49,6 +49,15 @@ export default function DirectorLayout() {
           title: 'Post Call',
           tabBarIcon: ({ color, size }) => (
             <PlusCircle size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="applicants/[roleId]"
+        options={{
+          title: 'Applicants',
+          tabBarIcon: ({ color, size }) => (
+            <Users size={size} color={color} />
           ),
         }}
       />

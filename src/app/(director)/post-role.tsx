@@ -34,6 +34,7 @@ export default function PostRoleScreen() {
     onSuccess: () => {
       // Invalidate query to refresh dashboard immediately
       queryClient.invalidateQueries({ queryKey: ['director_roles'] });
+      queryClient.invalidateQueries({ queryKey: ['director_applications'] });
       queryClient.invalidateQueries({ queryKey: ['casting_calls'] });
       
       Alert.alert('Casting Call Published', 'Your new role listing has been published to the Actor Board successfully!', [

@@ -5,6 +5,7 @@ import {
   TextInput, 
   TextInputProps 
 } from 'react-native';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -27,6 +28,7 @@ export function Input({
   ...props
 }: InputProps) {
   const [isFocused, setIsFocused] = useState(false);
+  const colors = useThemeColors();
 
   const handleFocus = (e: any) => {
     setIsFocused(true);
@@ -41,23 +43,23 @@ export function Input({
   return (
     <View className={`w-full mb-4 ${containerClassName}`}>
       {label ? (
-        <Text className="text-white text-xs font-semibold mb-1.5 uppercase tracking-widest opacity-80">
+        <Text className="text-textPrimary text-xs font-semibold mb-1.5 uppercase tracking-widest opacity-80">
           {label}
         </Text>
       ) : null}
 
       <View 
-        className={`w-full bg-[#0B0B0B] rounded-xl border px-4 py-3.5 flex-row items-center ${
+        className={`w-full bg-background rounded-xl border px-4 py-3.5 flex-row items-center ${
           error 
             ? 'border-red-500' 
             : isFocused 
               ? 'border-accent' 
-              : 'border-[#262626]'
+              : 'border-border'
         }`}
       >
         <TextInput
-          placeholderTextColor="#555555"
-          className={`flex-1 text-white text-sm ${inputClassName}`}
+          placeholderTextColor={colors.muted}
+          className={`flex-1 text-textPrimary text-sm ${inputClassName}`}
           onFocus={handleFocus}
           onBlur={handleBlur}
           style={{ padding: 0 }} // Remove default OS padding inside container

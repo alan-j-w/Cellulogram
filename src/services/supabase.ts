@@ -103,28 +103,43 @@ export const databaseService = {
   },
 
   /**
-   * Fetches all available roles for the public casting board.
+   * Fetches all available roles for the public casting board, optionally filtered by director.
    */
-  async getRoles(): Promise<Role[]> {
-    const { data, error } = await supabase
+  async getRoles(directorId?: string): Promise<Role[]> {
+    let query = supabase
       .from('roles')
       .select(`
         *,
-        users (name),
-        director_profiles (verified)
+        users!director_id (
+          name,
+          director_profiles (verified)
+        )
       `)
       .order('created_at', { ascending: false });
+
+    if (directorId) {
+      query = query.eq('director_id', directorId);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       console.error('Error fetching roles:', error);
       throw error;
     }
 
-    return (data || []).map((item: any) => ({
-      ...item,
-      director_name: (Array.isArray(item.users) ? item.users[0]?.name : item.users?.name) || 'Production House',
-      director_verified: (Array.isArray(item.director_profiles) ? item.director_profiles[0]?.verified : item.director_profiles?.verified) || false
-    }));
+    return (data || []).map((item: any) => {
+      const userObj = Array.isArray(item.users) ? item.users[0] : item.users;
+      const dirProfile = Array.isArray(userObj?.director_profiles)
+        ? userObj?.director_profiles[0]
+        : userObj?.director_profiles;
+
+      return {
+        ...item,
+        director_name: userObj?.name || 'Production House',
+        director_verified: Boolean(dirProfile?.verified),
+      };
+    });
   },
 
   /**
@@ -135,8 +150,10 @@ export const databaseService = {
       .from('roles')
       .select(`
         *,
-        users (name),
-        director_profiles (verified)
+        users!director_id (
+          name,
+          director_profiles (verified)
+        )
       `)
       .eq('id', id)
       .single();
@@ -148,10 +165,15 @@ export const databaseService = {
 
     if (!data) return null;
 
+    const userObj = Array.isArray(data.users) ? data.users[0] : data.users;
+    const dirProfile = Array.isArray(userObj?.director_profiles)
+      ? userObj?.director_profiles[0]
+      : userObj?.director_profiles;
+
     return {
       ...data,
-      director_name: (Array.isArray(data.users) ? data.users[0]?.name : data.users?.name) || 'Production House',
-      director_verified: (Array.isArray(data.director_profiles) ? data.director_profiles[0]?.verified : data.director_profiles?.verified) || false
+      director_name: userObj?.name || 'Production House',
+      director_verified: Boolean(dirProfile?.verified),
     };
   },
 
@@ -193,8 +215,11 @@ export const databaseService = {
       .from('applications')
       .select(`
         *,
-        users (name, avatar_url),
-        actor_profiles (age, gender, location, experience, skills)
+        users!actor_id (
+          name,
+          avatar_url,
+          actor_profiles (age, gender, location, experience, skills)
+        )
       `)
       .eq('role_id', roleId)
       .order('created_at', { ascending: false });
@@ -205,13 +230,15 @@ export const databaseService = {
     }
 
     return (data || []).map((item: any) => {
-      const actorUser = item.users;
-      const actorProfile = Array.isArray(item.actor_profiles) ? item.actor_profiles[0] : item.actor_profiles;
+      const actorUser = Array.isArray(item.users) ? item.users[0] : item.users;
+      const actorProfile = Array.isArray(actorUser?.actor_profiles)
+        ? actorUser?.actor_profiles[0]
+        : actorUser?.actor_profiles;
 
       return {
         ...item,
-        actor_name: (Array.isArray(actorUser) ? actorUser[0]?.name : actorUser?.name) || 'Talent',
-        actor_avatar: Array.isArray(actorUser) ? actorUser[0]?.avatar_url : actorUser?.avatar_url,
+        actor_name: actorUser?.name || 'Talent',
+        actor_avatar: actorUser?.avatar_url,
         actor_age: (actorProfile?.age)?.toString() || '',
         actor_gender: actorProfile?.gender || '',
         actor_location: actorProfile?.location || '',
@@ -229,8 +256,11 @@ export const databaseService = {
       .from('applications')
       .select(`
         *,
-        users (name, avatar_url),
-        actor_profiles (age, gender, location, experience, skills),
+        users!actor_id (
+          name,
+          avatar_url,
+          actor_profiles (age, gender, location, experience, skills)
+        ),
         roles (role_title, project_title)
       `)
       .eq('actor_id', actorId)
@@ -242,14 +272,16 @@ export const databaseService = {
     }
 
     return (data || []).map((item: any) => {
-      const actorUser = item.users;
-      const actorProfile = Array.isArray(item.actor_profiles) ? item.actor_profiles[0] : item.actor_profiles;
+      const actorUser = Array.isArray(item.users) ? item.users[0] : item.users;
+      const actorProfile = Array.isArray(actorUser?.actor_profiles)
+        ? actorUser?.actor_profiles[0]
+        : actorUser?.actor_profiles;
       const roleInfo = Array.isArray(item.roles) ? item.roles[0] : item.roles;
 
       return {
         ...item,
-        actor_name: (Array.isArray(actorUser) ? actorUser[0]?.name : actorUser?.name) || 'Talent',
-        actor_avatar: Array.isArray(actorUser) ? actorUser[0]?.avatar_url : actorUser?.avatar_url,
+        actor_name: actorUser?.name || 'Talent',
+        actor_avatar: actorUser?.avatar_url,
         actor_age: (actorProfile?.age)?.toString() || '',
         actor_gender: actorProfile?.gender || '',
         actor_location: actorProfile?.location || '',
@@ -281,8 +313,11 @@ export const databaseService = {
       })
       .select(`
         *,
-        users (name, avatar_url),
-        actor_profiles (age, gender, location, experience, skills),
+        users!actor_id (
+          name,
+          avatar_url,
+          actor_profiles (age, gender, location, experience, skills)
+        ),
         roles (role_title, project_title)
       `)
       .single();
@@ -292,15 +327,16 @@ export const databaseService = {
       throw error;
     }
     
-    // Format the returned data to match the Application interface
-    const actorUser = data.users;
-    const actorProfile = Array.isArray(data.actor_profiles) ? data.actor_profiles[0] : data.actor_profiles;
+    const actorUser = Array.isArray(data.users) ? data.users[0] : data.users;
+    const actorProfile = Array.isArray(actorUser?.actor_profiles)
+      ? actorUser?.actor_profiles[0]
+      : actorUser?.actor_profiles;
     const roleInfo = Array.isArray(data.roles) ? data.roles[0] : data.roles;
 
     return {
       ...data,
-      actor_name: (Array.isArray(actorUser) ? actorUser[0]?.name : actorUser?.name) || 'Talent',
-      actor_avatar: Array.isArray(actorUser) ? actorUser[0]?.avatar_url : actorUser?.avatar_url,
+      actor_name: actorUser?.name || 'Talent',
+      actor_avatar: actorUser?.avatar_url,
       actor_age: (actorProfile?.age)?.toString() || '',
       actor_gender: actorProfile?.gender || '',
       actor_location: actorProfile?.location || '',
@@ -340,8 +376,11 @@ export const databaseService = {
       .from('applications')
       .select(`
         *,
-        users (name, avatar_url),
-        actor_profiles (age, gender, location, experience, skills),
+        users!actor_id (
+          name,
+          avatar_url,
+          actor_profiles (age, gender, location, experience, skills)
+        ),
         roles (role_title, project_title)
       `)
       .eq('id', appId)
@@ -349,14 +388,16 @@ export const databaseService = {
 
     if (detailsError || !appDetails) return null;
 
-    const actorUser = appDetails.users;
-    const actorProfile = Array.isArray(appDetails.actor_profiles) ? appDetails.actor_profiles[0] : appDetails.actor_profiles;
+    const actorUser = Array.isArray(appDetails.users) ? appDetails.users[0] : appDetails.users;
+    const actorProfile = Array.isArray(actorUser?.actor_profiles)
+      ? actorUser?.actor_profiles[0]
+      : actorUser?.actor_profiles;
     const roleInfo = Array.isArray(appDetails.roles) ? appDetails.roles[0] : appDetails.roles;
 
     return {
       ...appDetails,
-      actor_name: (Array.isArray(actorUser) ? actorUser[0]?.name : actorUser?.name) || 'Talent',
-      actor_avatar: Array.isArray(actorUser) ? actorUser[0]?.avatar_url : actorUser?.avatar_url,
+      actor_name: actorUser?.name || 'Talent',
+      actor_avatar: actorUser?.avatar_url,
       actor_age: (actorProfile?.age)?.toString() || '',
       actor_gender: actorProfile?.gender || '',
       actor_location: actorProfile?.location || '',

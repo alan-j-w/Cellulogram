@@ -3,7 +3,7 @@ import { Tabs, Redirect } from 'expo-router';
 import { View } from 'react-native';
 import { useAuthStore } from '@/store/authStore';
 import { useThemeColors } from '@/hooks/useThemeColors';
-import { Search, ClipboardList, User } from 'lucide-react-native';
+import { Search, ClipboardList, User, Film, Send } from 'lucide-react-native';
 
 export default function ActorLayout() {
   const { user } = useAuthStore();
@@ -40,6 +40,24 @@ export default function ActorLayout() {
           title: 'Browse',
           tabBarIcon: ({ color, size }) => (
             <Search size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="role/[id]"
+        options={{
+          title: 'Role',
+          tabBarIcon: ({ color, size }) => (
+            <Film size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="apply/[id]"
+        options={{
+          title: 'Apply',
+          tabBarIcon: ({ color, size }) => (
+            <Send size={size} color={color} />
           ),
         }}
       />

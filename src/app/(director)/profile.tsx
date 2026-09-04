@@ -109,7 +109,7 @@ export default function DirectorProfileScreen() {
               value={theme === 'dark'}
               onValueChange={(val) => setTheme(val ? 'dark' : 'light')}
               trackColor={{ false: colors.border, true: colors.accent }}
-              thumbColor={colors.background}
+              thumbColor={colors.card}
             />
           </View>
         </Card>

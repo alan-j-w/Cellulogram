@@ -130,7 +130,7 @@ export default function ActorDashboard() {
                 {role.director_verified && (
                   <View className="bg-sky-500/5 px-2 py-0.5 rounded-md flex-row items-center gap-1">
                     <BadgeCheck size={10} color="#38bdf8" />
-                    <Text className="text-sky-400 text-[10px] font-bold uppercase tracking-wider">
+                    <Text className="text-sky-600 dark:text-sky-400 text-[10px] font-bold uppercase tracking-wider">
                       Verified Agency
                     </Text>
                   </View>

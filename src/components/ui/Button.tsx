@@ -6,6 +6,7 @@ import {
   View, 
   TouchableOpacityProps 
 } from 'react-native';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 interface ButtonProps extends TouchableOpacityProps {
   label: string;
@@ -30,6 +31,7 @@ export function Button({
   disabled,
   ...props
 }: ButtonProps) {
+  const colors = useThemeColors();
   
   // Base container styles
   let variantStyles = '';
@@ -38,11 +40,11 @@ export function Button({
   switch (variant) {
     case 'primary':
       variantStyles = 'bg-accent border border-accent';
-      textStyles = 'text-background font-bold';
+      textStyles = 'text-[#0B0B0B] font-bold';
       break;
     case 'secondary':
       variantStyles = 'bg-card border border-border';
-      textStyles = 'text-white font-medium';
+      textStyles = 'text-textPrimary font-medium';
       break;
     case 'outline':
       variantStyles = 'bg-transparent border border-accent';
@@ -50,7 +52,7 @@ export function Button({
       break;
     case 'text':
       variantStyles = 'bg-transparent';
-      textStyles = 'text-white font-medium';
+      textStyles = 'text-textPrimary font-medium';
       break;
   }
 
@@ -83,7 +85,7 @@ export function Button({
       {loading ? (
         <ActivityIndicator 
           size="small" 
-          color={variant === 'primary' ? '#0B0B0B' : '#D4AF37'} 
+          color={variant === 'primary' ? colors.background : colors.accent} 
           className="mr-2"
         />
       ) : null}

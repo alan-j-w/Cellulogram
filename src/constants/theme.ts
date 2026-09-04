@@ -1,26 +1,63 @@
-/**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
- */
-
 import '@/global.css';
-
 import { Platform } from 'react-native';
 
 export const Colors = {
   light: {
-    text: '#000000',
-    background: '#ffffff',
+    background: '#F8F9FA',
+    card: '#FFFFFF',
+    border: '#E5E5E5',
+    muted: '#737373',
+    accent: '#D4AF37',
+    textPrimary: '#171717',
+    textSecondary: '#525252',
+    text: '#171717',
     backgroundElement: '#F0F0F3',
     backgroundSelected: '#E0E1E6',
-    textSecondary: '#60646C',
   },
   dark: {
-    text: '#ffffff',
-    background: '#000000',
+    background: '#0B0B0B',
+    card: '#171717',
+    border: '#262626',
+    muted: '#9E9E9E',
+    accent: '#D4AF37',
+    textPrimary: '#FFFFFF',
+    textSecondary: '#A3A3A3',
+    text: '#FFFFFF',
     backgroundElement: '#212225',
     backgroundSelected: '#2E3135',
-    textSecondary: '#B0B4BA',
+  },
+} as const;
+
+export const StatusBadgeColors = {
+  submitted: {
+    label: 'Submitted',
+    light: { text: '#525252', bg: 'rgba(115, 115, 115, 0.08)', border: 'rgba(115, 115, 115, 0.2)' },
+    dark: { text: '#A3A3A3', bg: 'rgba(163, 163, 163, 0.12)', border: 'rgba(163, 163, 163, 0.25)' },
+  },
+  viewed: {
+    label: 'Viewed',
+    light: { text: '#0284c7', bg: 'rgba(2, 132, 199, 0.08)', border: 'rgba(2, 132, 199, 0.2)' },
+    dark: { text: '#38bdf8', bg: 'rgba(56, 189, 248, 0.12)', border: 'rgba(56, 189, 248, 0.25)' },
+  },
+  underReview: {
+    label: 'Under Review',
+    light: { text: '#d97706', bg: 'rgba(217, 119, 6, 0.08)', border: 'rgba(217, 119, 6, 0.2)' },
+    dark: { text: '#fbbf24', bg: 'rgba(251, 191, 36, 0.12)', border: 'rgba(251, 191, 36, 0.25)' },
+  },
+  shortlisted: {
+    label: 'Shortlisted',
+    light: { text: '#b45309', bg: 'rgba(212, 175, 55, 0.12)', border: 'rgba(212, 175, 55, 0.3)' },
+    dark: { text: '#D4AF37', bg: 'rgba(212, 175, 55, 0.15)', border: 'rgba(212, 175, 55, 0.35)' },
+  },
+  meetingScheduled: {
+    label: 'Meeting Scheduled',
+    light: { text: '#7c3aed', bg: 'rgba(124, 58, 237, 0.08)', border: 'rgba(124, 58, 237, 0.2)' },
+    dark: { text: '#a78bfa', bg: 'rgba(167, 139, 250, 0.12)', border: 'rgba(167, 139, 250, 0.25)' },
+  },
+  rejected: {
+    label: 'Passed',
+    light: { text: '#dc2626', bg: 'rgba(220, 38, 38, 0.08)', border: 'rgba(220, 38, 38, 0.2)' },
+    dark: { text: '#f87171', bg: 'rgba(248, 113, 113, 0.12)', border: 'rgba(248, 113, 113, 0.25)' },
   },
 } as const;
 
@@ -28,13 +65,9 @@ export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
 export const Fonts = Platform.select({
   ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
     sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
     serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
     rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
     mono: 'ui-monospace',
   },
   default: {

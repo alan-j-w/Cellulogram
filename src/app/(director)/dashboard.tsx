@@ -16,18 +16,20 @@ export default function DirectorDashboard() {
   const colors = useThemeColors();
 
   const { data: roles, isLoading, refetch } = useQuery({
-    queryKey: ['director_roles'],
-    queryFn: () => databaseService.getRoles(),
+    queryKey: ['director_roles', user?.id],
+    queryFn: () => databaseService.getRoles(user?.id),
+    enabled: !!user?.id,
   });
 
   const { data: allApps } = useQuery({
-    queryKey: ['director_applications'],
+    queryKey: ['director_applications', user?.id],
     queryFn: async () => {
-      const activeRoles = await databaseService.getRoles();
+      const activeRoles = await databaseService.getRoles(user?.id);
       const allPromises = activeRoles.map((r) => databaseService.getApplicationsForRole(r.id));
       const results = await Promise.all(allPromises);
       return results.flat();
-    }
+    },
+    enabled: !!user?.id,
   });
 
   const activeRolesCount = roles?.length || 0;
@@ -46,7 +48,7 @@ export default function DirectorDashboard() {
             {user?.verified && (
               <View className="flex-row items-center gap-1">
                 <BadgeCheck size={14} color="#38bdf8" />
-                <Text className="text-sky-400 text-xs">Verified</Text>
+                <Text className="text-sky-600 dark:text-sky-400 text-xs font-semibold">Verified</Text>
               </View>
             )}
           </View>
@@ -57,8 +59,8 @@ export default function DirectorDashboard() {
           onPress={() => router.push('/(director)/post-role')}
           className="bg-accent px-4 py-2 rounded-xl flex-row items-center gap-1"
         >
-          <Plus size={14} color={colors.background} strokeWidth={3} />
-          <Text className="text-background font-bold text-xs">NEW CALL</Text>
+          <Plus size={14} color="#0B0B0B" strokeWidth={3} />
+          <Text className="text-[#0B0B0B] font-bold text-xs">NEW CALL</Text>
         </TouchableOpacity>
       </View>
 
